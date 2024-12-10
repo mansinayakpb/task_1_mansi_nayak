@@ -51,7 +51,7 @@ class LoginView(TemplateView):
             user = authenticate(request, username=email, password=password)
             if user is not None:
                 login(request, user)
-                return redirect("home")
+                return redirect("listsoftask")
         return render(request, self.template_name, {"form": form})
 
 
@@ -64,9 +64,7 @@ class LogoutView(View):
 class CreateTaskView(TemplateView):
     template_name = "create_task.html"
 
-    def get(self, request):
-        if not request.user.is_authenticated:
-            return redirect("login")        
+    def get(self, request):       
         users = User.objects.exclude(id=request.user.id)
         form = TaskForm()
         return render(
@@ -79,9 +77,9 @@ class CreateTaskView(TemplateView):
             task = form.save(commit=False)
             task.assigned_by = request.user
             task.save()
-            return redirect("listsoftask")
+            return redirect('listsoftask')
         else:
-            return render(request, "create_task.html", {"form": form})
+            return render(request, self.template_name, {"form": form})
 
 
 class TaskListView(TemplateView):
@@ -93,4 +91,11 @@ class TaskListView(TemplateView):
         return render(request, self.template_name, context=context)
 
 
+class DetailTaskView(TemplateView):
+    template_name = "task_detail.html"
+
+    def get(self, request, pk):
+        task = Task.objects.filter(id=pk).first()
+        context = {"task": task}
+        return render(request, self.template_name, context=context)
 
