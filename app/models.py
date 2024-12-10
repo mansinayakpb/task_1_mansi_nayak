@@ -1,6 +1,6 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 
@@ -15,15 +15,17 @@ class TimesStampedModel(models.Model):
 
 # User
 
+
 class User(AbstractUser, TimesStampedModel):
     id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
     def __str__(self):
         return self.email
+
 
 # Task
 
