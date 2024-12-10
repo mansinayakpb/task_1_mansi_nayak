@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, View
-from .forms import SignUpForm, LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect, render
+from django.views.generic import TemplateView, View
+
+from .forms import LoginForm, SignUpForm, TaskForm
+from .models import User, Task
 
 
 class Home(TemplateView):
@@ -10,7 +12,7 @@ class Home(TemplateView):
 
     def get(self, request):
         return render(request, self.template_name)
-    
+
 
 class SignUpView(TemplateView):
     template_name = "signin/register.html"
@@ -30,14 +32,14 @@ class SignUpView(TemplateView):
             return redirect("login")
 
         return render(request, self.template_name, {"form": form})
-    
+
 
 class LoginView(TemplateView):
     template_name = "signin/login.html"
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect("home")
         form = LoginForm()
         return render(request, self.template_name, {"form": form})
 
@@ -49,11 +51,46 @@ class LoginView(TemplateView):
             user = authenticate(request, username=email, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                return redirect("home")
         return render(request, self.template_name, {"form": form})
-    
+
 
 class LogoutView(View):
     def get(self, request):
         logout(request)
-        return redirect('home')
+        return redirect("home")
+
+
+class CreateTaskView(TemplateView):
+    template_name = "create_task.html"
+
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect("login")        
+        users = User.objects.exclude(id=request.user.id)
+        form = TaskForm()
+        return render(
+            request, self.template_name, {"form": form, "users": users}
+        )
+
+    def post(self, request):
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.assigned_by = request.user
+            task.save()
+            return redirect("listsoftask")
+        else:
+            return render(request, "create_task.html", {"form": form})
+
+
+class TaskListView(TemplateView):
+    template_name = "task_list.html"
+
+    def get(self, request):
+        task = Task.objects.all()
+        context = {"task": task}
+        return render(request, self.template_name, context=context)
+
+
+

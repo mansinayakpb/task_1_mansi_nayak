@@ -1,6 +1,7 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import User, Task, Comment
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
+from .models import Comment, Task, User
 
 
 class SignUpForm(UserCreationForm):
@@ -11,6 +12,14 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["email", "first_name", "last_name", "password1", "password2"]
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        user.username = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
 
 
 class LoginForm(AuthenticationForm):
