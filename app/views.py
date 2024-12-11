@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.views.generic import TemplateView, View
 
 from .forms import LoginForm, SignUpForm, TaskForm
-from .models import User, Task
+from .models import Task, User
 
 
 class Home(TemplateView):
@@ -64,7 +64,7 @@ class LogoutView(View):
 class CreateTaskView(TemplateView):
     template_name = "create_task.html"
 
-    def get(self, request):       
+    def get(self, request):
         users = User.objects.exclude(id=request.user.id)
         form = TaskForm()
         return render(
@@ -77,7 +77,7 @@ class CreateTaskView(TemplateView):
             task = form.save(commit=False)
             task.assigned_by = request.user
             task.save()
-            return redirect('listsoftask')
+            return redirect("listsoftask")
         else:
             return render(request, self.template_name, {"form": form})
 
@@ -98,4 +98,3 @@ class DetailTaskView(TemplateView):
         task = Task.objects.filter(id=pk).first()
         context = {"task": task}
         return render(request, self.template_name, context=context)
-
