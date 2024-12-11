@@ -12,7 +12,7 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["email", "first_name", "last_name", "password1", "password2"]
-    
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data["email"]
@@ -33,13 +33,11 @@ class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = [
-            "id",
             "title",
             "detail",
             "due_date",
             "status",
             "priority",
-            "assigned_by",
             "assigned_to",
         ]
 
